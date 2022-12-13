@@ -8,6 +8,7 @@ import defaultStyles from '../styles/defaultStyles.js';
 
 import TopicsChannels from '../components/TopicsChannels.js';
 import TopicsCategories from '../components/TopicsCategories.js';
+import TopicsSubcategories from '../components/TopicsSubcategories.js';
 import EmptyView from '../components/EmptyView.js';
 
 function TabShadow(props) {
@@ -41,23 +42,26 @@ const TopicsContent = (props) => {
 	return (
     <View
       style={[
-        {...defaultStyles.shadowProps},
+//        {...defaultStyles.shadowProps},
         {
 //          flex: 1,
           height: 600,
-          width: '100%',
-          borderRadius: 20,
+          width: '97%',
+          marginHorizontal: '1.5%',
+          marginTop: 20,
           paddingVertical: 30,
-          paddingHorizontal: 20,
+          paddingHorizontal: defaultStyles.screenPadding.paddingHorizontal / 3 * 2,
+          borderRadius: 20,
           backgroundColor: '#FFF',
-        }
+        },
+        defaultStyles.shadowProps,
+      
       ]}
     >
 
       <View nativeID="#topics__inner-content" 
         style={{ overflow: 'hidden', flex: 1 }}
       >
-
 
         <Tab
           value={index}
@@ -133,14 +137,13 @@ const TopicsContent = (props) => {
 
 
 
-          <TabView.Item style={{ backgroundColor: 'green', width: '100%' }}>
+          <TabView.Item style={{ backgroundColor: '#FFF', width: '100%' }}>
 
-            <Text >Cart</Text>
+            <TopicsSubcategories />
 
           </TabView.Item>
 
         </TabView>
-
 
 
 

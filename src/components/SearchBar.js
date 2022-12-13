@@ -14,10 +14,10 @@ const SearchBar = (props) => {
 	return (
 		<View style={[
         { borderRadius: 25, 
-          height:0,  width: '100%', 
-          paddingHorizontal: 16, paddingVertical: 18, marginVertical: 10, 
+          width: '100%', 
+          paddingHorizontal: 20, paddingVertical: 10, marginVertical: 10, 
           justifyContent: 'center',
-          backgroundColor: '#FFF', color: '#dedcdc',
+          backgroundColor: '#FFF',
         },
         { 
 shadowColor: "#656565",
@@ -30,7 +30,7 @@ shadowRadius: 4.59,
 elevation: 5
         }
     ]}>
-      <Text>Search</Text>
+      <Text style={[{ color: '#e6e6e6', fontSize: 14 }]}>Search</Text>
     </View>
 	);
 }

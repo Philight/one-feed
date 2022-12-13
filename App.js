@@ -20,19 +20,22 @@ import TopicsScreen from './src/screens/TopicsScreen.js';
 import BurgerNavigation from './src/main/BurgerNavigation.js';
 import DataContext from './src/contexts/DataContext.js';
 
+import Loader from './src/util/Loader.js';
+
 import StorageActions from './src/util/StorageActions.js';
 
 import { usePrevious } from './src/util/utilMethods.js';
-import { getStorageData, setStorageData, deleteStorageData, getAllStorageKeys } from './src/data/asyncStorage.js';
+import { getStorageData, setStorageData, updateStorageData, 
+  deleteStorageData, getAllStorageKeys } from './src/data/asyncStorage.js';
 import defaultStyles from './src/styles/defaultStyles.js';
+
+import { VARIABLES } from './src/data/ENV.js';
+import { LINK_SOURCES, NEWS_SOURCES } from './src/data/NEWS_SOURCES.js';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 
-import { SUBCATEGORIES, CATEGORIES } from './src/data/CATEGORIES.js';
-import { LINK_SOURCES, NEWS_SOURCES } from './src/data/NEWS_SOURCES.js';
-
-const APIURL = 'https://localhost:3333';
+const API_GET_DATA_URL = `${VARIABLES.API_HOST+':'+VARIABLES.API_PORT}/one-feed/get-data`; 
 
 export default function App() {
   const [isLoading, setLoading] = useState(true);
@@ -112,11 +115,13 @@ console.log('+++ DEVICE WEB: '+deviceIdTest);
     }
   }
 
+/*
+  USER SETTINGS
+*/
   const loadStorage = async () => {
 console.log(`### MAIN loadStorage deviceId: ${contextData.userInfo.DEVICE_ID} | Calling getStorageData`);
-//      const jsonData = await getStorageData(contextData.userInfo.DEVICE_ID);
+
     getStorageData(contextData.userInfo.DEVICE_ID).then((jsonData) => {
-//console.log('+++ MAIN loadStorage.getStorageData');
       if (jsonData != null) {
   console.log('+++ MAIN loadStorage - getStoredData DATA FOUND');
   console.log(jsonData);
@@ -126,7 +131,8 @@ console.log(`### MAIN loadStorage deviceId: ${contextData.userInfo.DEVICE_ID} | 
           userInfo: {
             ...prevData.userInfo,
             ...jsonData
-          }
+          },
+          guestUser: false,
         }));
         setActionsFinished(prevState => ({ ...prevState, loadStorage: true }))
 
@@ -137,8 +143,14 @@ console.log(`### MAIN loadStorage deviceId: ${contextData.userInfo.DEVICE_ID} | 
           ...prevData,
           userInfo: {
             ...prevData.userInfo,
-            NEWS_SOURCES: { }
-          }
+            NEWS_SOURCES: { },
+            SETTINGS: { 
+              MERGE_CATEGORIES: true,
+              DEFAULT_TOPIC: null, // catKey/subcatKey
+              FEED_PREVIEW: true,
+            },
+          },
+          guestUser: true,
         }));
         setActionsFinished(prevState => ({ ...prevState, loadStorage: true }))
       }
@@ -149,29 +161,27 @@ console.log(`### MAIN loadStorage deviceId: ${contextData.userInfo.DEVICE_ID} | 
 console.log('### MAIN loadData');
     try {
 
-
-/*
-      const response = await axios.get(`${APIURL}/onefeed/get-data`);
-console.log('### MAIN - loadData');
+      const response = await axios.get(API_GET_DATA_URL);
+console.log('### MAIN loadData response');
 console.log(response);
 console.log(response.data);
 
-      setContextData(response.data);
-*/
-//      const jsonData = response.data;
-      
+      const jsonData = response.data;      
+/*
       const jsonData = {
         CATEGORIES: CATEGORIES,
         SUBCATEGORIES: SUBCATEGORIES,
         LINK_SOURCES: LINK_SOURCES,
         NEWS_SOURCES: NEWS_SOURCES,
+        SOURCES_LINK: SOURCES_LINK,
       }
-
+*/
       setContextData(prevData => ({
         ...prevData,
         ...jsonData,
         setContextData,
-        categoriesUpdated: false,
+        topicsUpdated: false,
+        settingsUpdated: false,
         innerData: {
           ChannelTopics: { 
             newsSource: { }
@@ -208,21 +218,63 @@ console.log('### MAIN contextData userInfo was added. | Proceeding with loadStor
       } else if (prevContextData['userInfo'] && prevContextData.userInfo['NEWS_SOURCES'] != undefined
         && (Object.keys(prevContextData.userInfo['NEWS_SOURCES']).length != Object.keys(contextData.userInfo['NEWS_SOURCES']).length)) {
 console.log('### MAIN contextData userInfo.NEWS_SOURCES was changed');
-        setStorageData(contextData.userInfo['DEVICE_ID'], { NEWS_SOURCES: contextData.userInfo['NEWS_SOURCES'] });
 
-      // Flag set, categories were updated
-      } else if (prevContextData['categoriesUpdated'] == false && contextData['categoriesUpdated'] == true) {
-console.log('### MAIN contextData categoriesUpdated set to TRUE');
+        // Add News source 
+        if (Object.keys(contextData['userInfo']['NEWS_SOURCES']).length > 0) {
+          setContextData(prevContextData => ({
+            ...prevContextData,
+            guestUser: false // Guest User flag
+          }))
 
+          // Set storage
+          setStorageData(contextData.userInfo['DEVICE_ID'], { 
+            NEWS_SOURCES: contextData.userInfo['NEWS_SOURCES'],
+            SETTINGS: contextData.userInfo['SETTINGS'], // temporary solution
+          });
+
+        // Empty News sources
+        } else {
+          setContextData(prevContextData => ({
+            ...prevContextData,
+            guestUser: true // Guest User flag
+          }))
+
+          // Delete storage data
+          deleteStorageData(contextData.userInfo['DEVICE_ID']);
+        }
+
+      // Categories update flag set, categories were updated
+      } else if (prevContextData['topicsUpdated'] == false && contextData['topicsUpdated'] == true) {
+console.log('### MAIN contextData topicsUpdated was set to TRUE');
 console.log("### MAIN contextData contextData.userInfo['NEWS_SOURCES']");
 console.log(contextData.userInfo['NEWS_SOURCES']);
-        setStorageData(contextData.userInfo['DEVICE_ID'], { NEWS_SOURCES: contextData.userInfo['NEWS_SOURCES'] });
 
+        setStorageData(contextData.userInfo['DEVICE_ID'], { 
+          NEWS_SOURCES: contextData.userInfo['NEWS_SOURCES'], 
+          SETTINGS: contextData.userInfo['SETTINGS'], // temporary solution
+        });
+
+        // Reset update flag
         setContextData(prevContextData => ({
           ...prevContextData,
-          categoriesUpdated: false
+          topicsUpdated: false
         }))
-      }
+      
+      // SETTINGS Update flag set, settings were updated
+      } else if (prevContextData['settingsUpdated'] == false && contextData['settingsUpdated'] == true) {
+console.log('### MAIN contextData settingsUpdated was set to TRUE');
+console.log("### MAIN contextData contextData.userInfo['SETTINGS']");
+console.log(contextData.userInfo['SETTINGS']);
+        updateStorageData(contextData.userInfo['DEVICE_ID'], { 
+          SETTINGS: contextData.userInfo['SETTINGS'], 
+        });
+
+        // Reset update flag
+        setContextData(prevContextData => ({
+          ...prevContextData,
+          settingsUpdated: false
+        }))
+      } 
 
     }
 
@@ -245,7 +297,7 @@ console.log(contextData.userInfo['NEWS_SOURCES']);
   return (
     <DataContext.Provider value={contextData}>
       <NavigationContainer>
-        { isLoading ? <ActivityIndicator /> : 
+        { isLoading ? <Loader /> : 
           <BurgerNavigation /> 
         }
 

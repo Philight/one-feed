@@ -27,7 +27,7 @@ const TopicsCategories = (props) => {
   const [sourcesByCategory, setSources] = useState({ });
 
   const updateSourcesByCategory = () => {
-console.log(`### TopicsCategories.updateSourcesByCategory`);    
+//console.log(`### TopicsCategories.updateSourcesByCategory`);    
     let categories = {};
 
     // Get all Categories Keys
@@ -52,25 +52,25 @@ console.log(`### TopicsCategories.updateSourcesByCategory`);
         }
       }
     }
-console.log(`+++ TopicsCategories.updateSourcesByCategory tree:`);    
-console.log(categories);    
+//console.log(`+++ TopicsCategories.updateSourcesByCategory tree:`);    
+//console.log(categories);    
     setSources(categories);
   }
 
   useEffect(() => {
-console.log(`### TopicsCategories useEffect: INITIAL`);    
+//console.log(`### TopicsCategories useEffect: INITIAL`);    
     updateSourcesByCategory();
     LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
   }, [])
 
   useEffect(() => {
-console.log(`### TopicsCategories useEffect: DEP: USER_NEWS_SOURCES`);    
+//console.log(`### TopicsCategories useEffect: DEP: USER_NEWS_SOURCES`);    
     updateSourcesByCategory()
   }, [USER_NEWS_SOURCES]);
 
-  const addCategory = ( newsSourceKey ) => {
-console.log('### addCategory contextData');
-console.log(contextData);
+  const addNewsChannel = ( newsSourceKey, categoryKey ) => {
+//console.log('### addNewsChannel contextData');
+//console.log(contextData);
 
     // Add New Category key
     if (!(newsSourceKey in contextData.userInfo['NEWS_SOURCES'])) {
@@ -79,6 +79,7 @@ console.log(contextData);
         [newsSourceKey]: {
           'categories': {
             'top': [],
+            [categoryKey]: [],
           }
         }
       };
@@ -102,10 +103,11 @@ console.log(contextData);
           }
         }
       }))
-
     }
+
   }
 
+{/*
   const listItem = ({ item, index }) => (
     <View style={[
       { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
@@ -115,13 +117,14 @@ console.log(contextData);
       <Text style={{ color: '#505050', fontWeight: 'bold', fontSize: 12 }}>{NEWS_SOURCES[item].name}</Text>
 
       <AntDesign name="pluscircleo" color={'#AD0000'} size={18} 
-        onPress={() => addCategory(item)}
+        onPress={() => addNewsChannel(item)}
       />
     </View>
   );
+*/}
 
   const CategoryItem = (props) => {
-    const { newsSource } = props;
+    const { newsSource, categoryKey } = props;
 
     return (
       <View style={[
@@ -138,7 +141,7 @@ console.log(contextData);
         </Text>
 
         <AntDesign name="pluscircleo" color={'#AD0000'} size={18} 
-          onPress={() => addCategory(newsSource)}
+          onPress={() => addNewsChannel(newsSource, categoryKey)}
         />
       </View>
     )
@@ -146,17 +149,16 @@ console.log(contextData);
 
   const CategorySection = (props) => {
     const { categoryKey } = props;
-
 //console.log(`### TopicsCategories CategorySection categoryKey: ${categoryKey}`);
 //console.log(`### TopicsCategories CategorySection CATEGORIES[categoryKey]`);
 //console.log(CATEGORIES[categoryKey].category);
-
     return (
       <View style={[
         { 
 //          borderColor: 'blue', borderWidth: 1, 
           flexBasis: '100%', 
-          marginTop: 24,
+          marginTop: 12,
+          marginBottom: 20,
         }
       ]}>
 
@@ -172,13 +174,14 @@ console.log(contextData);
 
         {
           sourcesByCategory[categoryKey].map((newsSource) => {
-          return <CategoryItem newsSource={newsSource} />
+          return <CategoryItem newsSource={newsSource} categoryKey={categoryKey} />
         }) }
 
       </View>
     )
   }
 
+{/*
   const CategorySection2 = ({ item, index }) => (
     <View style={[
       { flex: 1,  }
@@ -195,17 +198,18 @@ console.log(contextData);
 
     </View>
   )
-  
+*/}
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView nestedScrollEnabled={true} 
         contentContainerStyle={{ 
-          height: 1800, 
+          height: 2600, 
+          paddingHorizontal: defaultStyles.screenPadding.paddingHorizontal / 3,
           flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-start'  
         }}
       >
-        { Object.keys(sourcesByCategory).map((key) => {
+        { Object.keys(sourcesByCategory).sort().map((key) => {
           return (<CategorySection categoryKey={key} />)
         }) }
       </ScrollView> 

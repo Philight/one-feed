@@ -20,13 +20,15 @@ const styles = StyleSheet.create({
     color: '#FFF',
     borderRadius: 20,
     fontSize: 12, lineHeight: 1,
+
+    position: 'relative',
   },
   subcategoryContainer: {
     margin: 0, padding: 0,
     marginLeft: 28,
   },
   subcategoryStyle: {
-//    display: 'inline-flex',
+    display: 'inline-flex',
     marginTop: 8,
     marginRight: 4,
   }
@@ -51,7 +53,10 @@ const CategoriesTree = () => {
 
       if (cat['subcategories'].length > 0) {
         for (let subcat of cat['subcategories']) {
-          subcategories.push(<li style={{...styles.categoryStyle, ...styles.subcategoryStyle}}>{SUBCATEGORIES[subcat]['subcategory']}</li>);
+          subcategories.push(
+            <li style={{...styles.categoryStyle, ...styles.subcategoryStyle}}>
+              {SUBCATEGORIES[subcat]['subcategory']}
+            </li>);
         }
 
         listItems.push(

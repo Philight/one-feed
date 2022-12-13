@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect, useRef } from 'react';
-import { TouchableOpacity,TouchableWithoutFeedback, SafeAreaView, View, ScrollView, 
+import { TouchableOpacity,TouchableWithoutFeedback, SafeAreaView, View, Pressable, ScrollView, 
   FlatList, VirtualizedList, Text, StyleSheet, Dimensions } from 'react-native';
 import { Link } from '@react-navigation/native';
 
@@ -11,18 +11,17 @@ import Octicons from 'react-native-vector-icons/Octicons';
 
 import DataContext from '../contexts/DataContext.js';
 
-import TopicsContent from '../components/TopicsContent.js';
-import HelpText from '../components/HelpText.js';
-
-import CategoriesList from '../components/CategoriesList.js';
-import NewsFeed from '../components/NewsFeed.js';
 import SearchBar from '../components/SearchBar.js';
+//import SettingsHeading from '../components/SettingsHeading.js';
+import SettingsColumn from '../components/SettingsColumn.js';
  
 //import { SUBCATEGORIES, CATEGORIES } from '../data/CATEGORIES.js';
 import defaultStyles from '../styles/defaultStyles.js';
 
 const styles = StyleSheet.create({
-  
+  section: {
+    margin: 14
+  }
 });
 
 function BackgroundLayer() {
@@ -35,20 +34,39 @@ function BackgroundLayer() {
   );
 }
 
+const SettingsHeading = (props) => {
+  const { heading } = props;
 
-function TopicsScreen(props) {
+  const contextData = useContext(DataContext);
+//  const SUBCATEGORIES = contextData.SUBCATEGORIES;
+  const CATEGORIES = contextData.CATEGORIES;
+
+  return (
+    <Text style={[{ 
+      fontSize: 18, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 3,
+      color: '#c8c8c8',
+      marginBottom: styles.section.margin,
+    }]}>
+      {heading}
+    </Text>
+  );
+}
+
+
+function SettingsHomeScreen(props) {
   const contextData = useContext(DataContext);
   const CATEGORIES = contextData.CATEGORIES;
 
   return (
     <View
-      nativeID="topics-screen"
+      nativeID="settings-home-screen"
       style={[{ 
         flex: 1, flexGrow: 1, 
         alignItems: 'center',
         backgroundColor: "#FFF", 
         width: defaultStyles.screenDimensions.width,
         paddingHorizontal: defaultStyles.screenPadding.paddingHorizontal, 
+
       }]}
     >
       <BackgroundLayer />
@@ -61,18 +79,32 @@ function TopicsScreen(props) {
         style={{width: '100%'}}
       >
         <SearchBar />
-{/*
-        <HelpText 
-          title="" 
-          titleCmp={<HelpTextTitle title="How does it work?" />}
-          paragraphs={[`Select from available News Channels 
-by Category or Subcategory`, `News Channels can be further specified
-by picking topics under "Your Channels"`]} 
-        />
-*/}
-        <HelpText />
 
-        <TopicsContent />
+        <View
+          style={[
+            {
+    //          flex: 1,
+              height: 600,
+              width: '97%',
+              marginHorizontal: '1.5%',
+              marginTop: 10,
+              paddingVertical: 30,
+              paddingHorizontal: defaultStyles.screenPadding.paddingHorizontal,
+              borderRadius: 20,
+              backgroundColor: '#FFF',
+            },
+            defaultStyles.shadowProps,
+          
+          ]}
+        >
+
+          <View style={{ marginBottom: styles.section.margin, }} >
+            <SettingsHeading heading="Content" />
+            <SettingsColumn heading="News Feed" icon="news-feed" navigateToScreen={"SettingsNewsFeed"}/>
+          </View>
+
+          <SettingsHeading heading="Content2" />
+        </View>
   
   {/*
         <View>
@@ -86,4 +118,4 @@ by picking topics under "Your Channels"`]}
   );
 }
 
-export default TopicsScreen;
+export default SettingsHomeScreen;

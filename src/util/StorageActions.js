@@ -45,6 +45,7 @@ const StorageActions = () => {
 
   const [keyToGet, setKeyToGet] = useState("");
   const [keyToDelete, setKeyToDelete] = useState("");
+  const [myKey, setMyKey] = useState(null);
 
   const actionGetContext = () => {
     console.log(contextData);
@@ -67,6 +68,16 @@ const StorageActions = () => {
     deleteStorageData(keyToDelete);
   }
 
+  const actionDeleteMyKey = () => {
+//    console.log(keyToDelete);
+    deleteStorageData(myKey);
+  }
+
+  useEffect(() =>{
+    if (contextData.userInfo) {
+      setMyKey(contextData.userInfo.DEVICE_ID);
+    }
+  }, [contextData.userInfo])
 
   const ActionButton = (props) => {   
     const { name, children, action } = props;
@@ -84,7 +95,6 @@ const StorageActions = () => {
           <Text style={{ color: '#FFF', fontSize: 12 }}>{name}</Text>
         </TouchableOpacity>
       </View>
-
     );
   }
 
@@ -104,6 +114,7 @@ const StorageActions = () => {
         <ActionButton name={"DeleteKey"} action={actionDeleteKey} >
           <ActionInput value={keyToDelete} setParentValue={setKeyToDelete} />
         </ActionButton>
+        <ActionButton name={"DeleteMyKey"} action={actionDeleteMyKey} />
       </View>
 
     </View>

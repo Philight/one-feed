@@ -1,21 +1,33 @@
 import { Dimensions, StyleSheet } from 'react-native';
+import { StatusBar } from 'react-native';
 
 export default StyleSheet.create({
   colorPalette: {
-    colorRed1: 'red',
+    red1: '#ad0000',
+    red2: 'red',
+    pink1: '#ffe1e1',
   },
   flexCenter: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
+/* 
   pageOffset: {
     margin: 'auto',
     padding: 16
   },
+*/
   screenPadding: {
-    paddingHorizontal: 16
+    paddingHorizontal: 14,
   },
+  screenDimensions: {
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
+    statusBarHeight: StatusBar.currentHeight,
+    headerHeight: 90,
+  },
+
   shadowProps: { 
     shadowColor: "#656565",
     shadowOffset: {
@@ -26,8 +38,4 @@ export default StyleSheet.create({
     shadowRadius: 4.59,
     elevation: 5
   },
-  screenDimensions: {
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
-  }
 });

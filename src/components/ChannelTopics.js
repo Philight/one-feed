@@ -7,10 +7,12 @@ import { usePrevious } from '../util/utilMethods.js';
 import defaultStyles from '../styles/defaultStyles.js';
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+const MISSINGIMG = require('../../assets/image/missing-image.png');
 
 const styles = StyleSheet.create({
-  constants: {
-    topicHeight: 40,
+  CONSTANTS: {
+    topicHeight: 50,
+    saveButtonContainerHeight: 30,
     dividerHeight: 16
   },
 });
@@ -49,26 +51,27 @@ const ChannelTopics = (props) => {
   const [subcategoriesCount, setSubcategoriesCount] = useState(0);
   const [aHeightSubcatCont, setAHeightSubcatCont] = useState(new Animated.Value(0));
   const [aOpacitySubcatCont, setAOpacitySubcatCont] = useState(new Animated.Value(0));
+  const [aMarginTopSubcatContInner, setAMarginTopSubcatContInner] = useState(new Animated.Value(0));
 
-/*
-  categoriesTree = {
-    'culture': {
-      enabled: true,
-      'art': true, 
-      'film': true,
-    },
+  /*
+    categoriesTree = {
+      'culture': {
+        enabled: true,
+        'art': true, 
+        'film': true,
+      },
 
-    'eco': {
-      'business': true,
-      enabled: true
+      'eco': {
+        'business': true,
+        enabled: true
+      }
     }
-  }
-*/
+  */
   const [categoriesTree, setCategoriesTree] = useState({});
 
   const getContainerHeight = (height) => {
-console.log(`### getContainerHeight ${newsSource} renderCount: `+renderCount);
-console.log('### height: '+height);
+//console.log(`### ChannelTopics.getContainerHeight ${newsSource} renderCount: `+renderCount);
+//console.log('### ChannelTopics.height: '+height);
 
     if (renderCount < 2) {
 
@@ -89,17 +92,18 @@ console.log('### height: '+height);
     setRenderCount(prevCount => prevCount+1);
   }
 
+/*
   useEffect(() => {
-console.log('ChannelTopics useEffect setting containerHeight');   
+console.log('### ChannelTopics useEffect setting containerHeight');   
     if (innerData['ChannelTopics']['newsSource'][newsSource]) {
       const containerHeight = innerData['ChannelTopics']['newsSource'][newsSource]['containerHeight'];
 //console.log('ChannelTopics useEffect setting containerHeight: '+containerHeight);   
-      setOriginalHeight(containerHeight);
+//      setOriginalHeight(containerHeight);
     }
   }, [innerData['ChannelTopics']['newsSource'][newsSource]])
-
-  useEffect(() => {
-//console.log('ChannelTopics useEffect animation isCollapsed is: '+isCollapsed);   
+*/
+  useLayoutEffect(() => {
+console.log('ChannelTopics useLayoutEffect ANIMATION isCollapsed is: '+isCollapsed);   
     Animated.parallel([
 
       // MAIN container
@@ -132,7 +136,7 @@ console.log('ChannelTopics useEffect setting containerHeight');
 
 
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const isOpening = origHeightSubcatCont > 0 ? true : false;
 console.log(`ChannelTopics useEffect animation isOpenin ${isOpening}`);   
 console.log(`ChannelTopics useEffect animation isOpenin origHeightSubcatCont ${origHeightSubcatCont}`);   
@@ -153,6 +157,15 @@ console.log(`ChannelTopics useEffect animation isOpenin origHeightSubcatCont ${o
         useNativeDriver: false
       }),
 
+      // SubcategoriesContainer Inner
+      Animated.timing(aMarginTopSubcatContInner, {
+        toValue: isOpening ? 1 : 0,
+        duration: ANIM_DURATION,
+//        easing: Easing.out(Easing.ease),
+//        easing: Easing.linear,
+        useNativeDriver: false
+      }),  
+
       // MAIN container
       Animated.timing(animatedHeightExpand, {
         toValue: isOpening ? 1 : 0,
@@ -166,35 +179,40 @@ console.log(`ChannelTopics useEffect animation isOpenin origHeightSubcatCont ${o
 
   }, [origHeightSubcatCont]);
 
-/*
-  useEffect(() => {
-//console.log('ChannelTopics useEffect activeCategory');
-    if (activeCategory.key == null) {
-
-    } else if (activeCategory.key != null) {
-    }
-  }, [activeCategory])
-*/
-
   useEffect(() => {
 console.log(`ChannelTopics useEffect subcategoriesCount ${subcategoriesCount}`);
     if (subcategoriesCount > 0) {
-      const rows = Math.ceil(subcategoriesCount/4);
-      const newOrigHeightSubcatCont = rows*styles.constants.topicHeight + styles.constants.dividerHeight;
+
+//      const rows = Math.ceil(subcategoriesCount/4);
+      const rows = Math.ceil(subcategoriesCount/columns);
+
+      const newOrigHeightSubcatCont = rows*styles.CONSTANTS.topicHeight + styles.CONSTANTS.dividerHeight;
 
       setOrigHeightSubcatCont(newOrigHeightSubcatCont);
-//      setOriginalHeight(prevHeight => prevHeight+newOrigHeightSubcatCont);
 
     } else {
       setOrigHeightSubcatCont(0);
-//      setOriginalHeight(prevHeight => prevHeight-prevOrigHeightSubcatCont);
     }
   }, [subcategoriesCount])
 
 
+  useEffect(() => {
+console.log(`ChannelTopics useEffect activeCategory ${activeCategory? activeCategory.key :''}`);
+    if (activeCategory.key != null /*&& isTheContainer*/) {
+      // Set subcategories count
+      const subcategoryKeys = Object.keys(categoriesTree[activeCategory.key]); 
+//console.log(`### SubcategoriesContainer useEffect setSubcategoriesCount: ${subcategoryKeys.length-1}`);
+      setSubcategoriesCount(subcategoryKeys.length-1); // exclude {enabled:true} key
+    } else {
+//console.log(`### SubcategoriesContainer useEffect setSubcategoriesCount: 0`);
+      setSubcategoriesCount(0); // 
+    }
+  }, [activeCategory])
+
 
 
   useEffect(() => {
+console.log(`### ChannelTopics useEffect -- initial category Tree `);
     let catTree = {};
 
     // Initial categories
@@ -208,16 +226,31 @@ console.log(`ChannelTopics useEffect subcategoriesCount ${subcategoriesCount}`);
 
     // Initial subcategories
     for (let subcatKey of NEWS_SOURCES[newsSource]['subcategories']) {
-      let categoryKey = SUBCATEGORIES[subcatKey].category;
+      let parentCatKey = SUBCATEGORIES[subcatKey].category;
 
-      if (Object.keys(userCategories).includes(categoryKey)) {
-        catTree[categoryKey][subcatKey] = userCategories[categoryKey].includes(subcatKey) ? true : false;
+      if (Object.keys(userCategories).includes(parentCatKey)) {
+        if (!catTree.hasOwnProperty(parentCatKey)) {
+          catTree[parentCatKey] = { enabled: true }
+        }
+        catTree[parentCatKey][subcatKey] = userCategories[parentCatKey].includes(subcatKey) ? true : false;
       } else {
-        catTree[categoryKey][subcatKey] = true;
+        if (!catTree.hasOwnProperty(parentCatKey)) {
+          catTree[parentCatKey] = { enabled: false }
+        }
+        catTree[parentCatKey][subcatKey] = true;
       }
     }
-console.log('### ChannelTopics -- initial category Tree');
+console.log(`### ChannelTopics -- initial category Tree [${newsSource}]`);
 console.log(catTree);
+
+//    const rows = Math.ceil(Object.keys(catTree).length/4);
+    const rows = Math.ceil(Object.keys(catTree).length/columns);
+
+    const containerHeight = rows*styles.CONSTANTS.topicHeight + styles.CONSTANTS.saveButtonContainerHeight;
+console.log(`### ChannelTopics - [${newsSource}] initial useEffect setOriginalHeight: ${containerHeight}`);
+    setOriginalHeight(containerHeight);
+    
+
     setCategoriesTree(catTree);
   }, []);
 
@@ -246,7 +279,7 @@ console.log(catTree);
     const { catKey, catIndex } = props
 
     const chooseCategory = () => {
-
+//console.log('## ChannelTopics.chooseCategory');
       let emptyPair = {
         index: null,
         key: null
@@ -275,7 +308,7 @@ console.log(catTree);
 
       // Choose category
       } else if (activeCategory.key!=catKey) {
-//console.log('### ChannelCategory2.activeCategory.key!=catKey: '+lastCategoryPressed.key);        
+//console.log('### ChannelCategory2.activeCategory.key!=catKey: '+catKey);        
         setActiveCategory(keyPair);
 
         setCategoriesTree(prevTree => ({
@@ -286,37 +319,46 @@ console.log(catTree);
           }
         }));
 
+//      setSubcategoriesCount();
+
       // Deselect category
       } else if (activeCategory.key==catKey){
-//console.log('### ChannelCategory2.activeCategory.key==catKey: '+lastCategoryPressed.key);        
+//console.log('### ChannelCategory2.activeCategory.key==catKey: '+catKey);        
         setActiveCategory(emptyPair); // close subcategories
         setLastCategoryPressed(keyPair);
-      }
-
-
 //      setSubcategoriesCount(0);
-
+      }
     }
 
+    const flexBasisCalc = (100 / columns) +'%';
+
     return (
-      <View style={{ 
-        flexBasis: '25%', border: catKey==activeCategory.key ? '3px solid red' :'', 
-        opacity:  categoriesTree[catKey]&&categoriesTree[catKey]['enabled']==true ? 1 : 0.4,
+      <View style={[{ 
+        flexBasis: flexBasisCalc, 
+//        opacity:  categoriesTree[catKey]&&categoriesTree[catKey]['enabled']==true ? 1 : 0.7,
         alignItems: 'center', 
-        height: styles.constants.topicHeight }}>
+        height: styles.CONSTANTS.topicHeight },
+        catKey==activeCategory.key ? {borderWidth: 2, borderColor: defaultStyles.colorPalette.red2} :''
+      ]}>
       <Pressable style={{ flex: 1, width: '100%' }}
         onPress={chooseCategory}
       >
         <ImageBackground 
-          style={[defaultStyles.flexCenter, { width: '100%'/*, paddingVertical: 15*/ }]}
-          source={CATEGORIES[catKey]['imageSource']} 
+          style={[defaultStyles.flexCenter, 
+            { width: '100%' }
+          ]}
+          source={CATEGORIES[catKey]['imageSource'] ? {uri: CATEGORIES[catKey]['imageSource']} :MISSINGIMG} 
           resizeMode="cover" 
         >
   {/* */}
-          <View style={{backgroundColor: '#0000002b', width: '100%', height: '100%', position: 'absolute', zIndex: -1}}>
-          </View>
-        
-          <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 9 }}>{CATEGORIES[catKey]['category']}</Text>
+          <View style={{
+            backgroundColor: '#3d3d3d', width: '100%', height: '100%', position: 'absolute', zIndex: 0,
+            opacity: categoriesTree[catKey]&&categoriesTree[catKey]['enabled']==true ? 0.3 : 0.75
+          }} />
+          <Text style={{ /*position: 'absolute', top:'50%' ,zIndex: 10,*/ 
+            color: '#FFF', fontWeight: 'bold', fontSize: 9,
+            opacity: categoriesTree[catKey]&&categoriesTree[catKey]['enabled']==true ? 1 : 0.4 
+          }}>{CATEGORIES[catKey]['category']}</Text>
         </ImageBackground>
 
       </Pressable>
@@ -347,10 +389,12 @@ console.log(catTree);
       })
     }
 
+    const flexBasisCalc = (100 / columns) +'%';
+
     return (
       <View style={{ 
-        flexBasis: '25%', alignItems: 'center', 
-        height: styles.constants.topicHeight,
+        flexBasis: flexBasisCalc, alignItems: 'center', 
+        height: styles.CONSTANTS.topicHeight,
         opacity: categoriesTree[catKey][subcatKey]==true ? 1 : 0.4 }}
       >
       <Pressable style={{ flex: 1, width: '100%' }}
@@ -358,14 +402,13 @@ console.log(catTree);
       >
         <ImageBackground 
           style={[defaultStyles.flexCenter, { width: '100%',  }]}
-          source={SUBCATEGORIES[subcatKey]['imageSource']} 
+          source={{ uri: SUBCATEGORIES[subcatKey]['imageSource'] }} 
           resizeMode="cover" 
         >
   {/* */}
-          <View style={{backgroundColor: '#0000002b', width: '100%', height: '100%', position: 'absolute', zIndex: -1}}>
-          </View>
+          <View style={{backgroundColor: '#0000002b', width: '100%', height: '100%', position: 'absolute', zIndex: -1}} />
         
-          <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 9 }}>{SUBCATEGORIES[subcatKey]['subcategory']}</Text>
+          <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 9, textAlign: 'center' }}>{SUBCATEGORIES[subcatKey]['subcategory']}</Text>
         </ImageBackground>
 
       </Pressable>
@@ -377,8 +420,25 @@ console.log(catTree);
     const { catKey, catIndex } = props; // key and index of the 3, 7, 11th elements followed by SubcategoriesContainer
 
     // Target specific container
-    const isTheContainer = activeCategory.key != null && Array.from({length: 4}, (v, i) => i + catIndex-3).includes(activeCategory.index); // [0,1,2,3].includes(activeCategory), [4,5,6,7].includes(activeCategory)
-    
+//    const isTheContainer = activeCategory.key != null && Array.from({length: 4}, (v, i) => i + catIndex-3).includes(activeCategory.index); // [0,1,2,3].includes(activeCategory), [4,5,6,7].includes(activeCategory)
+    const categoriesLength = getNewsSourceCategories().length;
+console.log(`### SubcategoriesContainer categoriesLength: ${categoriesLength}`);    
+//    const lastRow = [categoriesLength - (categoriesLength%3), categoriesLength - (categoriesLength%3)+1, categoriesLength - (categoriesLength%3)+2];
+    const rowOffset = categoriesLength%columns > 0 ? categoriesLength%columns : columns;
+    const lastRow = [categoriesLength - (rowOffset), categoriesLength - (rowOffset)+1, categoriesLength - (rowOffset)+2];
+    let isTheContainer = null;
+
+    if ( activeCategory.key != null ) {
+      if ( catIndex == categoriesLength-1 && lastRow.includes(activeCategory.index) ) {
+        isTheContainer = true;
+
+      } else if ( catIndex != categoriesLength-1 && Array.from({length: columns}, (v, i) => i + catIndex-columns+1).includes(activeCategory.index) ) { // [0,1,2,3].includes(activeCategory), [4,5,6,7].includes(activeCategory)
+        isTheContainer = true;
+      }
+    }
+console.log(`### SubcategoriesContainer lastRow: ${lastRow}`);    
+//    const isTheContainer = activeCategory.key != null 
+//      && Array.from({length: columns}, (v, i) => i + catIndex-columns+1).includes(activeCategory.index) // [0,1,2,3].includes(activeCategory), [4,5,6,7].includes(activeCategory)
     const fillContainer = () => {
 /*
 console.log('SubcategoriesContainer.fillContainer');
@@ -387,8 +447,7 @@ console.log(categoriesTree);
 console.log('catIndex');
 console.log(catIndex);
 */
-console.log('SubcategoriesContainer activeCategory.index');
-console.log(activeCategory.index);
+//console.log(`### SubcategoriesContainer activeCategory.index: ${activeCategory.index}`);
 
       // activeCategory not empty AND target specific SubcategoriesContainer
       if (isTheContainer) {
@@ -396,7 +455,7 @@ console.log(activeCategory.index);
         const subcategoryKeys = Object.keys(categoriesTree[activeCategory.key]); 
         
         // Set subcategories count
-        setSubcategoriesCount(subcategoryKeys.length-1); // exclude {enabled:true} key
+//        setSubcategoriesCount(subcategoryKeys.length-1); // exclude {enabled:true} key
 
         let subcatElems = [];
         subcategoryKeys.map((subcatKey, subcatIndex) => {
@@ -406,27 +465,48 @@ console.log(activeCategory.index);
         })
 
         let dividerElems = [];
-        for(let i=0; i<4; i++) {
-          if (activeCategory.index % 4 == i) {
-            dividerElems.push(<View style={{flexBasis: '25%', alignItems: 'center', justifyContent: 'center'}}><FontAwesome5 name="chevron-down" color={'#AD0000'} size={20} style={{}} /></View>)
+        const flexBasisCalc = (100 / columns) +'%';
+//        for(let i=0; i<4; i++) {
+        for(let i=0; i<columns; i++) {
+//          if (activeCategory.index % 4 == i) {
+          if (activeCategory.index % columns == i) {
+            dividerElems.push(
+              <View style={{ 
+//                borderWidth:1, borderColor:'red',
+//                flexBasis: '25%', alignItems: 'center', justifyContent: 'center', }}>
+                flexBasis: flexBasisCalc, alignItems: 'center', justifyContent: 'center', }}>
+                <FontAwesome5 name="chevron-down" color={'#AD0000'} size={20} style={{ 
+//                  borderWidth:1, borderColor:'blue', 
+                  justifyContent: 'center', alignItems: 'center', width: 19, height: 24 }} />
+              </View>)
           } else {
-            dividerElems.push(<View style={{flexBasis: '25%'}}/>)
+//            dividerElems.push(<View style={{flexBasis: '25%'}}/>)
+            dividerElems.push(<View style={{flexBasis: flexBasisCalc}}/>)
           }
         }
 
+        const interpolMarginTop = aMarginTopSubcatContInner.interpolate({
+          inputRange: [0, 1],
+          outputRange: [-40, 0]
+        })
+
         return (
-          <>
+          <Animated.View style={{ 
+//            borderColor: 'blue', borderWidth: 1,
+            flexDirection: 'row', flexBasis: '100%',flexWrap: 'wrap', 
+            marginTop: interpolMarginTop,
+
+          }}>
             <View style={{ flexDirection: 'row', flexBasis: '100%', 
-              height: styles.constants.dividerHeight }}>
+              height: styles.CONSTANTS.dividerHeight }}>
               {dividerElems}
             </View>
             {subcatElems}
-          </>
+          </Animated.View>
         );
 
-
       } else {
-        setSubcategoriesCount(0); // 
+//        setSubcategoriesCount(0); // 
       }
 
     } 
@@ -440,21 +520,14 @@ console.log(activeCategory.index);
     return (
       <Animated.View style={[
         { 
-//          border: '2px solid green', 
+//          borderColor: 'green', borderWidth: 2, 
           flexDirection: 'row', flexBasis: '100%', flexWrap: 'wrap', 
+          overflow: 'hidden',
+//          position: 'relative',
 //        flex: 1,
-          height: 0,
-//          height: isTheContainer ? interpolHeight : 'auto', 
-//          opacity: isTheContainer ? aOpacitySubcatCont : 1,
         }, 
         isTheContainer? { height: interpolHeight, opacity: aOpacitySubcatCont } : ''
-      ]}
-        onLayout={(event) => { 
-          const onLayoutHeight = event.nativeEvent.layout.height;
-//          console.log(`ChannelTopics - SubcategoriesContainer ${newsSource} ${catIndex} height: `+onLayoutHeight);
-//          getContainerHeight(onLayoutHeight)
-        }}
-      >
+      ]}>
         { fillContainer() }
       </Animated.View>
     )
@@ -463,7 +536,7 @@ console.log(activeCategory.index);
 
   const saveTopics = () => {
 console.log('### ChannelTopics.saveTopics');  
-    if (contextData.categoriesUpdated == false) {
+    if (contextData.topicsUpdated == false) {
 console.log('### categoriesTree');  
 console.log(categoriesTree);
 
@@ -474,6 +547,7 @@ console.log(categoriesTree);
           newCategoriesTree[catKey] = [];
 
           for (const subcatKey in categoriesTree[catKey]) {
+            // skip 'enabled' key (internal key)
             if (subcatKey == 'enabled') continue;
 
             if (categoriesTree[catKey][subcatKey] == true) {
@@ -487,8 +561,8 @@ console.log(newCategoriesTree);
 
       contextData.setContextData(prevContextData => {
         const newContext = {...prevContextData};
-        newContext['categoriesUpdated'] = true;
         newContext['userInfo']['NEWS_SOURCES'][newsSource]['categories'] = newCategoriesTree;
+        newContext['topicsUpdated'] = true;
         return newContext;
       })
     }
@@ -516,11 +590,29 @@ console.log(newCategoriesTree);
     outputRange: [-40, 0]
   })
 
+  const columnWidthCalc = (100 / columns) +'%'; 
+
+
+  const getNewsSourceCategories = () => {
+    let newsCategories = NEWS_SOURCES[newsSource]['categories'];
+    for (let subcatKey of NEWS_SOURCES[newsSource]['subcategories']) {
+      const parentCatKey = SUBCATEGORIES[subcatKey]['category'];
+      if (newsCategories.indexOf(parentCatKey) == -1) {
+        newsCategories.push(parentCatKey);
+      }
+    }
+
+    return newsCategories;
+  }
+
   return (
     <Animated.View style={[
-      { border: '1px solid blue', 
-        height: (containerHeight>0) ? ( (origHeightSubcatCont>0) ? interpolHeightExpand : interpolatedHeight) :'auto',
-        opacity: animatedOpacity 
+      { 
+//        borderColor: 'blue', borderWidth: 1, 
+//        height: (containerHeight>0) ? ( (origHeightSubcatCont>0) ? interpolHeightExpand : interpolatedHeight) :'auto',
+        height: (origHeightSubcatCont>0) ? interpolHeightExpand : interpolatedHeight,
+        opacity: animatedOpacity, 
+        marginTop: isCollapsed? 10 : 0,
       },
       propStyle,
     ]}
@@ -529,32 +621,26 @@ console.log(newCategoriesTree);
         getContainerHeight(onLayoutHeight)
       }}
     >
-      <View style={{position: 'fixed', top:-10, zIndex: 100, backgroundColor: '#FFF'}}>
+{/*
+      <View style={{position: 'absolute', bottom:-10, zIndex: 100, backgroundColor: '#FFF'}}>
         <Text>
           oH:{originalHeight},
           savedH:{containerHeight},
           oHSub:{origHeightSubcatCont},
         </Text>
       </View>
-{/*
-      <SafeAreaView style={{ flex: 1}}>
-        <FlatList
-          data={NEWS_SOURCES[newsSource]['categories']}
-          renderItem={ChannelCategory}
-          keyExtractor={item => item.id}
-          numColumns={4}
-        />
-      </SafeAreaView>
 */}
       <Animated.View style={{ 
-        border: '1px solid orange', flexGrow:1, flexDirection: 'row', flexWrap: 'wrap',
+//        borderColor: 'orange', borderWidth: 1, 
+        flexGrow:1, flexDirection: 'row', flexWrap: 'wrap',
         top: interpolatedTop,
       }}>
-      { NEWS_SOURCES[newsSource]['categories'].map((catKey, catIndex) => {
-        let categoriesCount = NEWS_SOURCES[newsSource]['categories'].length;
+      { getNewsSourceCategories().map((catKey, catIndex) => {
+        let categoriesCount = getNewsSourceCategories().length;
 //console.log(`ChannelTopics render ${newsSource} categoriesCount: ${categoriesCount}`);        
         return (
-          ( (catIndex+5) % 4 == 0 || catIndex==categoriesCount-1 )// catIndex == 3, 7, 11, .. || last catIndex
+//          ( (catIndex+5) % 4 == 0 || catIndex==categoriesCount-1 )// catIndex == 3, 7, 11, .. || last catIndex
+          ( (catIndex+columns+1) % columns == 0 || catIndex==categoriesCount-1 )// catIndex == 3, 7, 11, .. || last catIndex
             ? <>
                 <ChannelCategory2 catKey={catKey} catIndex={catIndex} /> 
                 <SubcategoriesContainer catKey={catKey} catIndex={catIndex} /> 
@@ -564,15 +650,25 @@ console.log(newCategoriesTree);
       }) }
       </Animated.View>
 
-      <View style={{ flexDirection: 'row', justifyContent:'flex-end', marginTop: 6 }}>
-        <Pressable style={{ backgroundColor: 'red', borderRadius: 25, flexBasis:'25%', paddingVertical: 4}}
+      <View style={{ 
+//        borderColor: 'orange', borderWidth: 1,
+        flexDirection: 'row', justifyContent:'flex-end', 
+        height: styles.CONSTANTS.saveButtonContainerHeight 
+      }}>
+        <Pressable style={{ 
+//          borderColor: 'green', borderWidth: 1,
+//          backgroundColor: 'red', borderRadius: 20, width:'25%', alignItems: 'center', justifyContent: 'center', marginTop: 10 }}
+          backgroundColor: 'red', borderRadius: 20, width: columnWidthCalc, alignItems: 'center', justifyContent: 'center', marginTop: 10 }}
           onPress={saveTopics}
         >
-          <Text style={{ color: '#FFF',  fontSize: 9, letterSpacing: 2, textAlign:'center' }}>
+          <Text style={{ 
+//            borderColor: 'blue', borderWidth: 1,
+            color: '#FFF',  fontSize: 9, letterSpacing: 2, textAlign:'center' }}>
             SAVE
           </Text>
         </Pressable>
       </View>
+
     </Animated.View>
   )
 }

@@ -26,6 +26,18 @@ console.log(jsonValue);
   }
 }
 
+export const updateStorageData = async (key, object) => {
+  try {
+    const jsonValue = JSON.stringify(object);
+    await AsyncStorage.mergeItem(key, jsonValue);
+console.log(`+++ AsyncStorage.updateStorageData - key: ${key}, data: `);
+console.log(jsonValue);
+
+  } catch (e) {
+    console.error('!!! AsyncStorage.updateStorageData: '+e);
+  }
+}
+
 export const deleteStorageData = async (key) => {
   try {
     await AsyncStorage.removeItem(key);

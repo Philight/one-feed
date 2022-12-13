@@ -10,7 +10,6 @@ import defaultStyles from '../styles/defaultStyles.js';
 const NEWSPAPERS1 = require('../../assets/image/newspapers-red-1.png');
 const NEWSPAPERS2 = require('../../assets/image/newspapers-blue-1.png');
 const NEWSPAPERS3 = require('../../assets/image/newspapers-teal-1.jpg');
-//const NEWSPAPERS4 = require('../../assets/icon/newspapers-red.svg');
 
 import NEWSPAPERS4 from "../../assets/icon/newspapers-red.svg";
 
