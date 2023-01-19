@@ -226,13 +226,14 @@ console.log(`### ChannelTopics useEffect -- initial category Tree `);
 
     // Initial subcategories
     for (let subcatKey of NEWS_SOURCES[newsSource]['subcategories']) {
-      let parentCatKey = SUBCATEGORIES[subcatKey].category;
+      let parentCatKey = SUBCATEGORIES[subcatKey]['catKey'];
 
       if (Object.keys(userCategories).includes(parentCatKey)) {
         if (!catTree.hasOwnProperty(parentCatKey)) {
           catTree[parentCatKey] = { enabled: true }
         }
         catTree[parentCatKey][subcatKey] = userCategories[parentCatKey].includes(subcatKey) ? true : false;
+
       } else {
         if (!catTree.hasOwnProperty(parentCatKey)) {
           catTree[parentCatKey] = { enabled: false }
@@ -324,9 +325,24 @@ console.log(`### ChannelTopics - [${newsSource}] initial useEffect setOriginalHe
       // Deselect category
       } else if (activeCategory.key==catKey){
 //console.log('### ChannelCategory2.activeCategory.key==catKey: '+catKey);        
-        setActiveCategory(emptyPair); // close subcategories
-        setLastCategoryPressed(keyPair);
-//      setSubcategoriesCount(0);
+        const subcatKeys = Object.keys(categoriesTree[catKey]);
+        if (subcatKeys.length > 1) {
+          setActiveCategory(emptyPair); // close subcategories
+          setLastCategoryPressed(keyPair);
+//          setSubcategoriesCount(0);  
+
+        // Category has no Subcategories => remove Category from list
+        } else {
+          setActiveCategory(emptyPair); 
+          setCategoriesTree(prevTree => ({
+            ...prevTree,
+            [catKey]: {
+              ...prevTree[catKey],
+              'enabled': false
+            }
+          }));
+        }
+
       }
     }
 
@@ -358,7 +374,7 @@ console.log(`### ChannelTopics - [${newsSource}] initial useEffect setOriginalHe
           <Text style={{ /*position: 'absolute', top:'50%' ,zIndex: 10,*/ 
             color: '#FFF', fontWeight: 'bold', fontSize: 9,
             opacity: categoriesTree[catKey]&&categoriesTree[catKey]['enabled']==true ? 1 : 0.4 
-          }}>{CATEGORIES[catKey]['category']}</Text>
+          }}>{CATEGORIES[catKey]['name']}</Text>
         </ImageBackground>
 
       </Pressable>
@@ -369,7 +385,7 @@ console.log(`### ChannelTopics - [${newsSource}] initial useEffect setOriginalHe
   const ChannelSubcategory = (props) => {
     const { subcatKey, subcatIndex } = props
 
-    const catKey = SUBCATEGORIES[subcatKey].category;
+    const parentCatKey = SUBCATEGORIES[subcatKey]['catKey'];
 
     const handlePress = () => {
       let emptyPair = {
@@ -384,7 +400,7 @@ console.log(`### ChannelTopics - [${newsSource}] initial useEffect setOriginalHe
       // Invert Subcategory boolean
       setCategoriesTree(prevTree => {
         let copy = {...prevTree};
-        copy[catKey][subcatKey] = !copy[catKey][subcatKey];
+        copy[parentCatKey][subcatKey] = !copy[parentCatKey][subcatKey];
         return copy;
       })
     }
@@ -395,7 +411,7 @@ console.log(`### ChannelTopics - [${newsSource}] initial useEffect setOriginalHe
       <View style={{ 
         flexBasis: flexBasisCalc, alignItems: 'center', 
         height: styles.CONSTANTS.topicHeight,
-        opacity: categoriesTree[catKey][subcatKey]==true ? 1 : 0.4 }}
+        opacity: categoriesTree[parentCatKey][subcatKey]==true ? 1 : 0.4 }}
       >
       <Pressable style={{ flex: 1, width: '100%' }}
         onPress={handlePress}
@@ -408,7 +424,7 @@ console.log(`### ChannelTopics - [${newsSource}] initial useEffect setOriginalHe
   {/* */}
           <View style={{backgroundColor: '#0000002b', width: '100%', height: '100%', position: 'absolute', zIndex: -1}} />
         
-          <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 9, textAlign: 'center' }}>{SUBCATEGORIES[subcatKey]['subcategory']}</Text>
+          <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 9, textAlign: 'center' }}>{SUBCATEGORIES[subcatKey]['name']}</Text>
         </ImageBackground>
 
       </Pressable>
@@ -596,7 +612,7 @@ console.log(newCategoriesTree);
   const getNewsSourceCategories = () => {
     let newsCategories = NEWS_SOURCES[newsSource]['categories'];
     for (let subcatKey of NEWS_SOURCES[newsSource]['subcategories']) {
-      const parentCatKey = SUBCATEGORIES[subcatKey]['category'];
+      const parentCatKey = SUBCATEGORIES[subcatKey]['catKey'];
       if (newsCategories.indexOf(parentCatKey) == -1) {
         newsCategories.push(parentCatKey);
       }

@@ -47,15 +47,15 @@ const CategoriesTree = () => {
 
       let mainCat = (
         <summary style={{}}>
-          <span style={{...styles.categoryStyle}}>{cat.category}</span>
+          <span style={{...styles.categoryStyle}}>{cat['name']}</span>
         </summary>
       );
 
       if (cat['subcategories'].length > 0) {
-        for (let subcat of cat['subcategories']) {
+        for (let subcatKey of cat['subcategories']) {
           subcategories.push(
             <li style={{...styles.categoryStyle, ...styles.subcategoryStyle}}>
-              {SUBCATEGORIES[subcat]['subcategory']}
+              {SUBCATEGORIES[subcatKey]['name']}
             </li>);
         }
 

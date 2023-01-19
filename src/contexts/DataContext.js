@@ -1,11 +1,5 @@
-import * as React from 'react';
-/*
-const DataContext = React.createContext({ 
-  SUBCATEGORIES: { },
-  CATEGORIES: { },
-  NEWS_SOURCES: { },
-});
-*/
-const DataContext = React.createContext(null);
+import { createContext } from 'react';
+
+const DataContext = createContext(null);
 
 export default DataContext;

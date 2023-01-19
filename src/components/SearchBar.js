@@ -7,9 +7,9 @@ import defaultStyles from '../styles/defaultStyles.js';
 const SearchBar = (props) => {
 	const { activeCategory, propStyle } = props;
 
-	const contextData = useContext(DataContext);
+//	const contextData = useContext(DataContext);
 //	const SUBCATEGORIES = contextData.SUBCATEGORIES;
-	const CATEGORIES = contextData.CATEGORIES;
+//	const CATEGORIES = contextData.CATEGORIES;
 
 	return (
 		<View style={[

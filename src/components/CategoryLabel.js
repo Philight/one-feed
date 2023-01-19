@@ -16,7 +16,7 @@ const CategoryLabel = (props) => {
 //console.log('### CategoryLabel.getLabel');    
 //console.log(catKey);    
 //console.log(subcatKey);    
-    return catKey ? CATEGORIES[catKey].category : subcatKey ? SUBCATEGORIES[subcatKey].subcategory : ''; 
+    return catKey ? CATEGORIES[catKey]['name'] : subcatKey ? SUBCATEGORIES[subcatKey]['name'] : ''; 
   }
 
   const getColor = () => {

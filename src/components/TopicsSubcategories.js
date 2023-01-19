@@ -71,19 +71,19 @@ console.log(Object.keys(subcategories));
   }, [USER_NEWS_SOURCES]);
 
 
-  const addNewsChannel = ( newsSourceKey, subcategoryKey ) => {
+  const addNewsChannel = ( newsSourceKey, subcatKey ) => {
 //console.log('### addNewsChannel contextData');
 //console.log(contextData);
 
     // Add New Category key
     if (!(newsSourceKey in contextData.userInfo['NEWS_SOURCES'])) {
 
-      const catKey = SUBCATEGORIES[subcategoryKey].category;
+      const catKey = SUBCATEGORIES[subcatKey]['catKey'];
       const updatedData = {
         [newsSourceKey]: {
           'categories': {
             'top': [],
-            [catKey]: [subcategoryKey],
+            [catKey]: [subcatKey],
           }
         }
       };
@@ -143,7 +143,7 @@ console.log(Object.keys(subcategories));
         <Text style={{ color: '#505050', fontWeight: 'bold', fontSize: 14, 
           marginLeft: 2
         }}>
-          {NEWS_SOURCES[newsSource].name}
+          {NEWS_SOURCES[newsSource]['name']}
         </Text>
 
         <AntDesign name="pluscircleo" color={'#AD0000'} size={18} 
@@ -175,7 +175,7 @@ console.log(Object.keys(subcategories));
             marginLeft: 0
            }
         ]}>
-          { SUBCATEGORIES[subcategoryKey].subcategory  }
+          { SUBCATEGORIES[subcategoryKey]['name']  }
         </Text>
 
         {

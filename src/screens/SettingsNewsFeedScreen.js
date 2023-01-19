@@ -55,7 +55,7 @@ function SettingsNewsFeedScreen(props) {
     if (ISGUESTUSER) {
       const catKeys = ['top', 'world', 'polit', 'culture', 'tech'];
       for (let catKey of catKeys) {
-        categoriesList.push({ key: catKey, value: CATEGORIES[catKey]['category'] });
+        categoriesList.push({ key: catKey, value: CATEGORIES[catKey]['name'] });
       }
 
     } else {
@@ -65,11 +65,11 @@ function SettingsNewsFeedScreen(props) {
 
           if (USER_SETTINGS && USER_SETTINGS.MERGE_CATEGORIES == false && newsCategories[catKey].length > 0) {
             for (let subcatKey of newsCategories[catKey]) {
-              categoriesList.push({ key: subcatKey, value: SUBCATEGORIES[subcatKey]['subcategory'] });
+              categoriesList.push({ key: subcatKey, value: SUBCATEGORIES[subcatKey]['name'] });
             }
 
           } else {
-            categoriesList.push({ key: catKey, value: CATEGORIES[catKey]['category'] });
+            categoriesList.push({ key: catKey, value: CATEGORIES[catKey]['name'] });
           }
 /*
           if (categoriesList.indexOf({ key: catKey, value: CATEGORIES[catKey]['category'] }) === -1){
@@ -226,7 +226,7 @@ console.log('### SettingsNewsFeedScreen togglePreviewPosts');
               defaultOption={{ 
                 key: USER_SETTINGS['DEFAULT_TOPIC'], 
                 value: CATEGORIES.hasOwnProperty(USER_SETTINGS['DEFAULT_TOPIC']) 
-                  ? CATEGORIES[USER_SETTINGS['DEFAULT_TOPIC']]['category'] : SUBCATEGORIES[USER_SETTINGS['DEFAULT_TOPIC']] ? SUBCATEGORIES[USER_SETTINGS['DEFAULT_TOPIC']]['subcategory'] : '', 
+                  ? CATEGORIES[USER_SETTINGS['DEFAULT_TOPIC']]['name'] : SUBCATEGORIES[USER_SETTINGS['DEFAULT_TOPIC']] ? SUBCATEGORIES[USER_SETTINGS['DEFAULT_TOPIC']]['name'] : '', 
               }}
               data={categoriesList} 
               save="key"

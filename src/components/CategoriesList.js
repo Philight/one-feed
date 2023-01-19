@@ -137,7 +137,7 @@ console.log(newCatTree);
 					onPress={() => chooseCategory(item)}
 				>
 			  	<Text style={{ /*fontWeight: 400, */color: "#414141" , opacity: itemIsActive? 1 : 0.5 }}>
-			  		{CATEGORIES.hasOwnProperty(item) ? CATEGORIES[item].category : SUBCATEGORIES.hasOwnProperty(item) ? SUBCATEGORIES[item].subcategory : 'undefined'}
+			  		{CATEGORIES.hasOwnProperty(item) ? CATEGORIES[item]['name'] : SUBCATEGORIES.hasOwnProperty(item) ? SUBCATEGORIES[item]['name'] : 'undefined'}
 			  	</Text>
 				  	
 			  	{ itemIsActive? <View style={{ backgroundColor: defaultStyles.colorPalette.red2, width: '100%', height: 1.8, marginTop: 2, borderRadius: 25 }} /> :''}

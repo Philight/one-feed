@@ -15,7 +15,6 @@ const TopicsCategories = (props) => {
 	const contextData = useContext(DataContext);
   const CATEGORIES = contextData.CATEGORIES;
 	const NEWS_SOURCES = contextData.NEWS_SOURCES;
-
   const USER_NEWS_SOURCES = contextData.userInfo.NEWS_SOURCES;
 
   /*
@@ -45,8 +44,8 @@ const TopicsCategories = (props) => {
       // Skip News Sources already in Storage 
       if (sourceKey in USER_NEWS_SOURCES) continue;
 
-      if (NEWS_SOURCES[sourceKey].categories && NEWS_SOURCES[sourceKey].categories.length>0) {
-        for (let cat of NEWS_SOURCES[sourceKey].categories) {
+      if (NEWS_SOURCES[sourceKey]['categories'] && NEWS_SOURCES[sourceKey]['categories'].length>0) {
+        for (let cat of NEWS_SOURCES[sourceKey]['categories']) {
           if (cat == 'top') continue;
           categories[cat].push(sourceKey);
         }
@@ -137,7 +136,7 @@ const TopicsCategories = (props) => {
         <Text style={{ color: '#505050', fontWeight: 'bold', fontSize: 14, 
           marginLeft: 2
         }}>
-          {NEWS_SOURCES[newsSource].name}
+          { NEWS_SOURCES[newsSource]['name'] }
         </Text>
 
         <AntDesign name="pluscircleo" color={'#AD0000'} size={18} 
@@ -169,7 +168,7 @@ const TopicsCategories = (props) => {
             marginLeft: 0
            }
         ]}>
-          { CATEGORIES[categoryKey].category  }
+          { CATEGORIES[categoryKey]['name']  }
         </Text>
 
         {
@@ -228,18 +227,6 @@ const TopicsCategories = (props) => {
 	);
 */}
 
-{/*
-  return (
-    <View style={[
-      {flex: 1}
-    ]}>
-      { Object.keys(sourcesByCategory).map((key) => {
-        return (<CategorySection categoryKey={key} />)
-      }) }
-    </View>
-  );
-
-*/}
 }
 
 export default TopicsCategories;

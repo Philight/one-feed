@@ -38,7 +38,7 @@ function BackgroundLayer() {
 
 function TopicsScreen(props) {
   const contextData = useContext(DataContext);
-  const CATEGORIES = contextData.CATEGORIES;
+//  const CATEGORIES = contextData.CATEGORIES;
 
   return (
     <View
@@ -61,26 +61,11 @@ function TopicsScreen(props) {
         style={{width: '100%'}}
       >
         <SearchBar />
-{/*
-        <HelpText 
-          title="" 
-          titleCmp={<HelpTextTitle title="How does it work?" />}
-          paragraphs={[`Select from available News Channels 
-by Category or Subcategory`, `News Channels can be further specified
-by picking topics under "Your Channels"`]} 
-        />
-*/}
+
         <HelpText />
 
         <TopicsContent />
   
-  {/*
-        <View>
-          <Link to={{ screen: 'Notifications', params: { id: 'notifications' } }}>
-            Go to Notif
-          </Link>
-        </View>
-  */}
       </ScrollView>
     </View>
   );

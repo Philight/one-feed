@@ -12,8 +12,8 @@ const styles = StyleSheet.create({
 
 });
 
-export const styleHTML = (newsSource, HTMLString) => {
-//console.log('### NewsFeed.styleHTML');
+export const formatDescription = (newsSource, HTMLString) => {
+//console.log('### NewsFeed.formatDescription');
 //      let styledString = HTMLString.replaceAll('<p>',`<p style="${styles.HTML.p}">`);
 //      let styledString = HTMLString.replaceAll('<p>','<p style="">');
   let styledString = HTMLString.split('<p>').join(`<p style="${styles.HTML.p}">`);
@@ -21,35 +21,6 @@ export const styleHTML = (newsSource, HTMLString) => {
 
   switch(newsSource) {
 
-    // The Guardian - remove 'Continue reading' link
-    case 'guardian':
-      let pos = styledString.lastIndexOf('<a href'); 
-      let pos2 = styledString.lastIndexOf('</a>');
-      let linkSubstring = styledString.substring(pos, pos2+('</a>'.length));
-    //console.log(linkSubstring);
-      styledString = styledString.replace(linkSubstring, '');
-    break;
-
-    default:
-    break;
-
-  }
-
-  return styledString;
-}
-
-export const formatDescriptionModal = (newsSource, HTMLString) => {
-//console.log('### NewsFeed.styleHTML');
-//      let styledString = HTMLString.replaceAll('<p>',`<p style="${styles.HTML.p}">`);
-//      let styledString = HTMLString.replaceAll('<p>','<p style="">');
-
-//  let styledString = HTMLString.split('<p>').join(`<p style="${styles.HTML.p}">`);
-//console.log(styledString);
-
-//  let styledString = HTMLString.replace('<ol>', '').replace('</ol>', '').replace('<ul>', '').replace('<ol>', '');
-
-  switch(newsSource) {
-    
     // The Guardian - remove 'Continue reading' link
     case 'guardian':
       let pos = styledString.lastIndexOf('<a href'); 

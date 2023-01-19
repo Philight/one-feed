@@ -14,7 +14,7 @@ import Icon from '../components/Icon.js';
 import CategoryLabel from '../components/CategoryLabel.js';
 
 import { openURL } from '../util/utilMethods.js';
-import { styleHTML, formatPubDate } from '../util/parsingMethods.js';
+import { formatDescription, formatPubDate } from '../util/parsingMethods.js';
 import defaultStyles from '../styles/defaultStyles.js';
 
 
@@ -144,24 +144,29 @@ console.log(`### PostModal open animation`);
 
 
   const openModal = (post) => {
-console.log('### PostModal openModal post');
+console.log('### PostModal openModal INITIAL POST');
 console.log(post);
     navigation.setOptions({ headerShown: false });
     setModalShown(true);
     containerAnimation(true);
 
-    const formattedDate = formatPubDate(post.newsSource, post.pubDate[0], true);
-    const formattedDesc = styleHTML(post.newsSource, post.description[0]);
+//    const formattedDate = formatPubDate(post['newsSource'], post['pubDate'], true);
+    const formattedDesc = formatDescription(post['newsSource'], post['description']);
 
     const feedPostData = {
-      title: post.title,
-      category: post.category,
-      subcategory: post.subcategory,
-      newsSource: post.newsSource,
-      link: post.link[0],
-      pubDate: formattedDate,
+      newsSource: post['newsSource'],
+      category: post['category'],
+      subcategory: post['subcategory'],
+
+      title: post['title'],
+      link: post['link'],
+      pubDate: post['pubDate'],
       description: formattedDesc,
-      media: post.media,
+      media: post['media']['url'],
+
+      author: post['author'],
+      authorLink: post['authorLink'],
+      fullContent: post['fullContent'],
     }
 console.log('### PostModal openModal feedPostData');
 console.log(feedPostData);
@@ -237,7 +242,7 @@ console.log(feedPostData);
           width: '100%', height: defaultStyles.screenDimensions.height / 3 * 2,
           position:'absolute', top: 0, zIndex: -2
         }}
-        source={{ uri: feedPost.media ? feedPost.media['url'] : feedPost.newsSource? NEWS_SOURCES[feedPost.newsSource]['backgroundImage'] : '' }}
+        source={{ uri: feedPost.media ? feedPost.media : feedPost.newsSource? NEWS_SOURCES[feedPost.newsSource]['backgroundImage'] : '' }}
 //        : 'https://c4.wallpaperflare.com/wallpaper/535/787/608/moon-night-eclipse-portrait-display-hd-wallpaper-preview.jpg' }} 
         resizeMode="cover" 
       >
@@ -252,26 +257,26 @@ console.log(feedPostData);
 
           <View style={{ flexDirection: 'row', marginBottom: 10, }}>
             <CategoryLabel propStyle={[ styles.categoryLabel ]} catKey={feedPost.category ? feedPost.category :''} subcatKey={feedPost.subcategory ? feedPost.subcategory :''} />
-            { feedPost.subcategory ? <CategoryLabel propStyle={[ styles.categoryLabel ]} catKey={SUBCATEGORIES[feedPost.subcategory].category} /> :'' }
+            { feedPost.subcategory ? <CategoryLabel propStyle={[ styles.categoryLabel ]} catKey={SUBCATEGORIES[feedPost.subcategory]['name']} /> :'' }
           </View>
 
           <Text style={{ 
             paddingHorizontal: 3, marginBottom: 8,
             fontSize: 30, fontWeight: 'bold', lineHeight: 40, letterSpacing: 1, color: '#FFF', maxHeight: 128, overflow: 'hidden'}}>
-            {feedPost.title}
+            {feedPost['title']}
           </Text>
 
           {/* DESCRIPTION */}
-          { ['</p>', '</div>', '</a>', '</li>'].some(tag => feedPost.description && feedPost.description.includes(tag)) 
+          { ['</p>', '</div>', '</a>', '</li>'].some(tag => feedPost['description'] && feedPost['description'].includes(tag)) 
             ? <RenderHtml 
                 contentWidth={"100%"} 
-                source={{ html: `<span>`+feedPost.description+'</span>' }}
+                source={{ html: `<span>`+feedPost['description']+'</span>' }}
                 tagsStyles={{...tagsStyles, ...introTagStyles}} 
               />
             : <Text style={{ 
                 color: '#FFF', fontSize: 11, lineHeight: 20,
               }}>
-                {feedPost.description}
+                {feedPost['description']}
               </Text>
           }
 
@@ -387,15 +392,16 @@ console.log('### PostModal ScrollView Left scrolling..');
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: defaultStyles.screenPadding.paddingHorizontal }}>
 
             {/* POST AUTHOR */}
-            <View style={{ 
-              flexDirection: 'row', alignItems: 'center', 
-              borderRadius: 25, padding: 6,
-              backgroundColor: defaultStyles.colorPalette.pink1 
-            }}>
-              <View style={{ borderRadius: 25, borderWidth: 1.2, borderColor: defaultStyles.colorPalette.red2, width: 26, height: 26 }}>
-              </View>
-              <Text style={{ marginHorizontal: 8, color: defaultStyles.colorPalette.red1, fontSize: 12 }}>Author</Text>
-            </View>
+            <Pressable style={{ 
+                flexDirection: 'row', alignItems: 'center', 
+                borderRadius: 25, padding: 6,
+                backgroundColor: defaultStyles.colorPalette.pink1 
+              }}
+              onPress={() => feedPost['authorLink'] ? openURL(feedPost['authorLink']) :''}
+            >
+              <View style={{ borderRadius: 25, borderWidth: 1.2, borderColor: defaultStyles.colorPalette.red2, width: 26, height: 26 }} />
+              <Text style={{ marginHorizontal: 8, color: defaultStyles.colorPalette.red1, fontSize: 11, fontWeight: Boolean(feedPost['author']) ? 'bold' :'normal' }}>{feedPost['author'] ? feedPost['author'] :'Author'}</Text>
+            </Pressable>
 
             {/* POST PUB DATE */}
             <View style={{ 
@@ -414,7 +420,7 @@ console.log('### PostModal ScrollView Left scrolling..');
 //                marginLeft: defaultStyles.screenPadding.paddingHorizontal
                 }}
               />
-              <Text style={{ marginLeft: 8, color: defaultStyles.colorPalette.red1, fontSize: 12 }}>{feedPost.pubDate? feedPost.pubDate : 'Publish Date'}</Text>
+              <Text style={{ marginLeft: 8, color: defaultStyles.colorPalette.red1, fontSize: 11 }}>{feedPost.pubDate? feedPost.pubDate : 'Publish Date'}</Text>
             </View>
 
             {/* POST VIEWS */}
@@ -434,7 +440,7 @@ console.log('### PostModal ScrollView Left scrolling..');
 //                marginLeft: defaultStyles.screenPadding.paddingHorizontal
                 }}
               />
-              <Text style={{ marginHorizontal: 4, color: defaultStyles.colorPalette.red1, fontSize: 12 }}>{feedPost.views? feedPost.views : 'Views'}</Text>
+              <Text style={{ marginHorizontal: 4, color: defaultStyles.colorPalette.red1, fontSize: 11 }}>{feedPost.views? feedPost.views : 'Views'}</Text>
             </View>
 
           </View>
@@ -480,33 +486,49 @@ console.log('### PostModal ScrollView Left scrolling..');
 {/*   */}
 
 
+          {/* INNER CONTENT */}
+
           {/* TITLE */}
           <Text style={{ 
             fontSize: 20, fontWeight: 'bold', lineHeight: 32, letterSpacing: 1, color: '#000', 
 //            paddingHorizontal: 3, 
             marginBottom: 16,
           }}>
-            {feedPost.title}
+            {feedPost['title']}
           </Text>
 
           {/* DESCRIPTION */}
-          { ['</p>', '</div>', '</a>', '</li>'].some(tag => feedPost.description && feedPost.description.includes(tag)) 
+          { ['</p>', '</div>', '</a>', '</li>'].some(tag => feedPost['description'] && feedPost['description'].includes(tag)) 
             ? <RenderHtml 
                 contentWidth={"100%"} 
-                source={{ html: `<span>`+feedPost.description+'</span>' }}
+                source={{ html: `<span>`+feedPost['description']+'</span>' }}
                 tagsStyles={tagsStyles} 
               />
             : <Text style={{ 
                 fontSize: 11, lineHeight: 20,
               }}>
-                {feedPost.description}
+                {feedPost['description']}
               </Text>
           }
 
           {/* FULL ARTICLE */}
+          { ['</p>', '</div>', '</a>', '</li>'].some(tag => feedPost['fullContent'] && feedPost['fullContent'].includes(tag)) 
+            ? <RenderHtml 
+                contentWidth={"100%"} 
+                source={{ html: `<span>`+feedPost['fullContent']+'</span>' }}
+                tagsStyles={tagsStyles} 
+              />
+            : <Text style={{ 
+                fontSize: 11, lineHeight: 20,
+              }}>
+                {feedPost['fullContent']}
+              </Text>
+          }
+
+          {/* CONTINUE READING */}
           <Pressable style={{ alignSelf: 'center', marginTop: 44, paddingVertical: 7, paddingHorizontal: 26,
             backgroundColor: defaultStyles.colorPalette.red1, borderRadius: 25 }} 
-            onPress={() => openURL(feedPost.link)}
+            onPress={() => openURL(feedPost['link'])}
           >
             <Text style={{fontSize: 10, color: '#FFF', letterSpacing: 1, lineHeight: 14 }}>Continue reading..</Text>
           </Pressable>

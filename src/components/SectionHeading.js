@@ -7,9 +7,9 @@ import defaultStyles from '../styles/defaultStyles.js';
 const SectionHeading = (props) => {
 	const { heading, underlineStyle } = props;
 
-	const contextData = useContext(DataContext);
+//	const contextData = useContext(DataContext);
 //	const SUBCATEGORIES = contextData.SUBCATEGORIES;
-	const CATEGORIES = contextData.CATEGORIES;
+//	const CATEGORIES = contextData.CATEGORIES;
 
 	return (
     <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'center' }}>

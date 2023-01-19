@@ -35,7 +35,7 @@ import { LINK_SOURCES, NEWS_SOURCES } from './src/data/NEWS_SOURCES.js';
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 
-const API_GET_DATA_URL = `${VARIABLES.API_HOST+':'+VARIABLES.API_PORT}/one-feed/get-data`; 
+const API_GET_DATA_URL = `${VARIABLES.API_HOST+':'+VARIABLES.API_PORT}/one-feed/database/get-data`; 
 
 export default function App() {
   const [isLoading, setLoading] = useState(true);

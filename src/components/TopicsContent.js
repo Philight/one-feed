@@ -42,7 +42,6 @@ const TopicsContent = (props) => {
 	return (
     <View
       style={[
-//        {...defaultStyles.shadowProps},
         {
 //          flex: 1,
           height: 600,
@@ -55,7 +54,6 @@ const TopicsContent = (props) => {
           backgroundColor: '#FFF',
         },
         defaultStyles.shadowProps,
-      
       ]}
     >
 

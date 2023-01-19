@@ -9,7 +9,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Octicons from 'react-native-vector-icons/Octicons';
 
-import DataContext from '../contexts/DataContext.js';
+//import DataContext from '../contexts/DataContext.js';
 
 import SearchBar from '../components/SearchBar.js';
 //import SettingsHeading from '../components/SettingsHeading.js';
@@ -37,10 +37,6 @@ function BackgroundLayer() {
 const SettingsHeading = (props) => {
   const { heading } = props;
 
-  const contextData = useContext(DataContext);
-//  const SUBCATEGORIES = contextData.SUBCATEGORIES;
-  const CATEGORIES = contextData.CATEGORIES;
-
   return (
     <Text style={[{ 
       fontSize: 18, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 3,
@@ -54,8 +50,6 @@ const SettingsHeading = (props) => {
 
 
 function SettingsHomeScreen(props) {
-  const contextData = useContext(DataContext);
-  const CATEGORIES = contextData.CATEGORIES;
 
   return (
     <View

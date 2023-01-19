@@ -13,9 +13,9 @@ const SettingsColumn = (props) => {
 
 	const navigation = useNavigation();
 
-	const contextData = useContext(DataContext);
+//	const contextData = useContext(DataContext);
 //	const SUBCATEGORIES = contextData.SUBCATEGORIES;
-	const CATEGORIES = contextData.CATEGORIES;
+//	const CATEGORIES = contextData.CATEGORIES;
 {/*
 		<Pressable style={[{ 
 				flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',

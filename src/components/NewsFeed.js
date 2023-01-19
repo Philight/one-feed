@@ -12,13 +12,16 @@ import NewsSource from '../components/NewsSource.js';
 import Icon from '../components/Icon.js';
 import CategoryLabel from '../components/CategoryLabel.js';
 
-import { styleHTML, formatPubDate } from '../util/parsingMethods.js';
+import { openURL } from '../util/utilMethods.js';
+import { formatDescription, formatPubDate } from '../util/parsingMethods.js';
 import Loader from '../util/Loader.js';
 
 import { VARIABLES } from '../data/ENV.js';
 import defaultStyles from '../styles/defaultStyles.js';
 
 //import MENU_LEFT_LINED from "../../assets/icon/menu-left-lined.svg";
+
+const API_FETCH_NEWS_URL = `${VARIABLES.API_HOST+':'+VARIABLES.API_PORT}/one-feed/fetch-news`;
 
 const styles = StyleSheet.create({
 	CONSTANTS: {
@@ -95,18 +98,23 @@ const NewsFeed = (props) => {
 
 
 	const sortPosts = (feedData) => {
-		const newsSources = Object.keys(feedData); // [newsSource, newsSource]
+//		const newsSources = Object.keys(feedData); // [newsSource, newsSource]
 
 		let sortedPosts = [];
 
 		for (let i=0; i < COUNT_PER_TOPIC; i++) {
 
 			for (let newsSource in feedData) {
+
 				if (Object.keys(feedData[newsSource]['category']).length > 0) {
 					const catKey = Object.keys(feedData[newsSource]['category'])[0];
 					const postsArr = feedData[newsSource]['category'][catKey];
-
-					if (postsArr[i] === 'undefined') continue;
+/*					
+console.log(`### sortPosts | postsArr`);
+console.log(postsArr[i]);
+*/
+					if (postsArr[i] == 'undefined') continue;
+					// add Custom Props
 					postsArr[i]['newsSource'] = newsSource;
 					postsArr[i]['category'] = catKey;
 
@@ -116,7 +124,11 @@ const NewsFeed = (props) => {
 					for (let subcatKey in feedData[newsSource]['subcategories']) {
 						const postsArr = feedData[newsSource]['subcategories'][subcatKey];
 
-						if (postsArr[i] === 'undefined') continue;
+					
+console.log(`### sortPosts | postsArr`);
+console.log(postsArr[i]);
+					if (postsArr[i] == 'undefined') continue;
+						// add Custom Props
 						postsArr[i]['newsSource'] = newsSource;
 						postsArr[i]['subcategory'] = subcatKey;
 
@@ -240,15 +252,13 @@ console.log(newsSources);
 			
 			
 			// CALL API
-      const apiUrl = `${VARIABLES.API_HOST+':'+VARIABLES.API_PORT}`;
-      const apiRoute = '/one-feed/fetch-news';
 
 			const reqBody = { 
 				newsSources: newsSources,
 				COUNT_PER_TOPIC: COUNT_PER_TOPIC,
 			};
 
-      const response = await axios.post(`${apiUrl+apiRoute}`, reqBody);
+      const response = await axios.post(API_FETCH_NEWS_URL, reqBody);
 console.log('### NewsFeed /one-feed/fetch-news response');
 console.log(response);
 console.log(response.data);
@@ -284,16 +294,6 @@ console.log(returnedData);
   const FeedPost = (props) => {
   	const { post } = props;
 
-  	const openURL = (URL) => {
-	    Linking.canOpenURL(URL).then(isSupported => {
-	      if (isSupported) {
-	        Linking.openURL(URL);
-	      } else {
-	        console.log("!!! Don't know how to open URI: " + URL);
-	      }
-	    });
-  	}
-
   	return (
 	    <Pressable style={[{ 
 //	    	borderWidth: 1, borderColor: 'blue',
@@ -309,11 +309,11 @@ console.log(returnedData);
 	    > 
 	    	<View style={{ flexDirection: 'row', alignItems: 'center' }}>
 	    		<CategoryLabel propStyle={[ styles.categoryLabel ]} catKey={post.category ? post.category :''} subcatKey={post.subcategory ? post.subcategory :''} />
-	    		{ post.subcategory ? <CategoryLabel propStyle={[ styles.categoryLabel ]} catKey={SUBCATEGORIES[post.subcategory].category} /> :'' }
+	    		{ post.subcategory ? <CategoryLabel propStyle={[ styles.categoryLabel ]} catKey={SUBCATEGORIES[post.subcategory]['name']} /> :'' }
 	    	</View>
 	    	<ImageBackground 
 	    		style={{ width: '100%', height: styles.CONSTANTS.feedItem.backgroundImageHeight, marginTop: 8,}}
-	    		source={{ uri: post.media!="" ? post.media.url : NEWS_SOURCES[post.newsSource]['backgroundImage'] }} 
+	    		source={{ uri: post['media']!="" ? post['media']['url'] : NEWS_SOURCES[post['newsSource']]['backgroundImage'] }} 
 	    		resizeMode="cover" 
 	    	/>
 
@@ -327,10 +327,10 @@ console.log(returnedData);
 	    	</Text>
 
 	    	{/*	DESCRIPTION */}
-	    	{ ['</p>', '</div>', '</a>'].some(tag => post.description[0] && post.description[0].includes(tag)) 
+	    	{ ['</p>', '</div>', '</a>'].some(tag => post.description && post.description.includes(tag)) 
 	    		?	 <RenderHtml 
 		    			contentWidth={"100%"} 
-		    			source={{ html: `<span>`+styleHTML(post.newsSource, post.description[0])+'</span>' }}
+		    			source={{ html: `<span>`+formatDescription(post.newsSource, post.description)+'</span>' }}
 		    			tagsStyles={tagsStyles} 
 		    		/>
 		    	: <Text style={{ 
@@ -338,6 +338,7 @@ console.log(returnedData);
 			    		fontSize: styles.CONSTANTS.feedItem.descriptionFontSize, lineHeight: 18,
 			    		color: styles.CONSTANTS.feedItem.descriptionColor, 
 			    		maxHeight: styles.CONSTANTS.feedItem.descriptionHeight,
+			    		overflow: 'hidden',
 	    			}}>
 	    				{post.description}
 	    			</Text>
@@ -351,12 +352,15 @@ console.log(returnedData);
 
             <NewsSource newsSource={post.newsSource} />	    		
 		    		<View style={{ backgroundColor: '#c9c9c9', width: 2.5, height: 2.5, marginHorizontal: 5, marginTop: 2, borderRadius: 50 }} />
-		    		<Text style={{ fontSize: 8, marginTop: 1.6, color: '#5d5d5d' }}>{formatPubDate(post.newsSource, post.pubDate[0], false)}</Text>  
+		    		{/*
+		    		<Text style={{ fontSize: 8, marginTop: 1.6, color: '#5d5d5d' }}>{formatPubDate(post['newsSource'], post['pubDate'], false)}</Text>  
+		    		*/}
+		    		<Text style={{ fontSize: 8, marginTop: 1.6, color: '#5d5d5d' }}>{post['pubDate']}</Text>  
 	    		
 	    		</View>
 
 	    		<Pressable
-	    			onPress={() => openURL(post.link[0])}
+	    			onPress={() => openURL(post.link)}
 	    			style={{ flexDirection: 'row', alignItems: 'center', 
 	    			borderRadius: 25, backgroundColor: defaultStyles.colorPalette.red1,
 	    			paddingHorizontal: 6, paddingVertical: 4 }}

@@ -64,7 +64,7 @@ console.log('### HomeScreen initial useEffect');
 
     } else if (USER_NEWS_SOURCES && Object.keys(USER_NEWS_SOURCES).length > 0) {
       const newsSource = Object.keys(USER_NEWS_SOURCES)[0];
-      const newsCategories = USER_NEWS_SOURCES[newsSource]['categories'];
+      const newsCategories = USER_NEWS_SOURCES[newsSource]['name'];
 
       let catKey = Object.keys(newsCategories)[0];
       let subcatKey = '';
@@ -93,6 +93,7 @@ console.log('### HomeScreen initial useEffect');
     }
   }, [isFocused]);
 
+/*
   useEffect(() => {
 //    alert(`### NAV listen useEffect`);
     const stateChange = navigation.addListener('state', () => {
@@ -108,11 +109,11 @@ console.log('### HomeScreen initial useEffect');
 
     return stateChange;
   }, [navigation]);
-
+*/
 
 
   const openModal = (post) => {
-console.log('#HomeScreen openModal');
+console.log('### HomeScreen openModal');
 //console.log(post);
 //console.log(modalRef.current);
     modalRef.current.openModal(post);

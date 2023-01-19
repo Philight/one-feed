@@ -28,6 +28,14 @@ const TopicsChannels = (props) => {
 
   const [isEmpty, setEmpty] = useState(true);
 
+  useEffect(() => {
+    if (Object.keys(USER_NEWS_SOURCES).length > 0) {
+      setEmpty(false);
+    } else {
+      setEmpty(true);
+    }
+  }, [USER_NEWS_SOURCES])
+
 
   const removeChannel = (newsSourceKey) => {
 console.log('### TopicsChannels.removeChannel');
@@ -48,42 +56,8 @@ console.log('### TopicsChannels.removeChannel');
     })
   }
 
-  useEffect(() => {
-    if (Object.keys(USER_NEWS_SOURCES).length > 0) {
-      setEmpty(false);
-    } else {
-      setEmpty(true);
-    }
-  }, [USER_NEWS_SOURCES])
 
-{/*
-  const NewsChannel = ({ item, index }) => (
-    <View style={[{ border: '1px solid red' , marginTop: 8} ]}>
-      <View style={[
-        { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-        }
-      ]}>
-        <Text style={{ color: '#000', fontWeight: 'bold', fontSize: 14 }}>{NEWS_SOURCES[item].name}</Text>
-
-        <View style={{ flexDirection: 'row', alignItems: 'center', flexBasis: '25%', justifyContent: 'space-between' }}>
-          <Pressable style={{ backgroundColor: 'red', borderRadius: 25, paddingHorizontal: 8, paddingVertical: 4}}
-            onPress={toggleTopics}
-          >
-            <Text style={{ color: '#FFF',  fontSize: 8, letterSpacing: 1 }}>TOPICS</Text>
-          </Pressable>
-
-          <AntDesign name="minuscircle" color={'#AD0000'} size={18} style={{ }}
-            onPress={() => removeChannel(item)}
-          />
-        </View>
-      </View>
-
-      <ChannelTopics propStyle={{   }} newsSource={item} />
-    </View>
-  );
-*/}
-
-  const NewsChannel2 = (props) => {
+  const NewsChannel = (props) => {
     const { newsSource } = props;
 
     const [topicsShown, setTopicsShown] = useState(false);
@@ -99,7 +73,6 @@ console.log('### TopicsChannels.toggleTopics newsSource: '+newsSource);
 console.log('### TopicsChannels useEffect INITIAL setTopicsShown');
       setTopicsShown(false);
     }, [])
-
 
 
 
@@ -185,12 +158,12 @@ console.log('### TopicsChannels useEffect INITIAL setTopicsShown');
             width: (100-COLUMN_WIDTH)+'%',}}>
 
             <Text style={{ color: topicsShown? '#FFF' : '#000', fontWeight: 'bold', fontSize: 14, flexShrink: 0,  }}>
-              {NEWS_SOURCES[newsSource].name}
+              {NEWS_SOURCES[newsSource]['name']}
             </Text>
 
             { NEWS_SOURCES[newsSource]['topcategories'] 
               ? NEWS_SOURCES[newsSource]['topcategories'].map((catKey) => (
-              <CategoryLabel label={CATEGORIES[catKey].category} backgroundColor={CATEGORIES[catKey].color} propStyle={{marginLeft: 4, marginTop: 2}} /> 
+              <CategoryLabel label={CATEGORIES[catKey]['name']} backgroundColor={CATEGORIES[catKey]['color']} propStyle={{marginLeft: 4, marginTop: 2}} /> 
             )) :''}
 
           </View>
@@ -265,7 +238,7 @@ console.log('### TopicsChannels useEffect INITIAL setTopicsShown');
         }}
       >
         { Object.keys(USER_NEWS_SOURCES).map((newsSource, index) => {
-          return <NewsChannel2 newsSource={newsSource} />
+          return <NewsChannel newsSource={newsSource} />
         }) }
       </ScrollView> 
 
@@ -279,9 +252,6 @@ console.log('### TopicsChannels useEffect INITIAL setTopicsShown');
         ? <EmptyView /> 
         : <ChannelsContainer />
       }
-{/*      
-      <Text>{DEVICE_ID}:{isEmpty?'empty':'notempty'}</Text>
-*/}
     </View>
 	);
 }
