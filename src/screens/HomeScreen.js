@@ -148,10 +148,11 @@ console.log('### HomeScreen openModal');
           position: 'relative',
         }]}>
 
-
+{/*
         <View>
           <Text>actTopicCat: {activeTopic.category} | actTopicSub: {activeTopic.subcategory} | {isFocused ? 'focused' : 'unfocused'}</Text>
         </View>
+*/}
 
         <SearchBar />
 
@@ -160,8 +161,6 @@ console.log('### HomeScreen openModal');
           updateTopic={setActiveTopic}
           propStyle={{  }}
         />
-{/*
-*/}
         <PostModal ref={modalRef} /> 
 
         <ScrollView
